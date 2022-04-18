@@ -324,14 +324,12 @@ class Uxn:
             self.deo(a, v & 0xff)
 
     def dei(self, a):
-        print(f"DEI({hex(a)})")
-        return 0
+        return self.dev[a]
 
     def deo(self, a, v):
+        self.dev[a] = v
         if a == 0x18:
             print(chr(v), end='')
-        else:
-            print(f"DEO({hex(a)}, {hex(v)})")
 
     def halt(self):
         self.halted = True
