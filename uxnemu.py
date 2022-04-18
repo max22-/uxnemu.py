@@ -20,6 +20,8 @@ class Stack:
         self.array = bytearray(0x100)
         self.view = memoryview(self.array)
         self.ptr = 0
+        self.kptr = 0
+        self.k = False
 
     def push8(self, v):
         if self.ptr >= 0xff:
@@ -34,26 +36,40 @@ class Stack:
         self.view[self.ptr+1] = v & 0xff
         self.ptr += 2
 
-    def pop8(self, keep=False):
-        if self.ptr < 1:
+    def pop8(self):
+        if self.k:
+            ptr = self.kptr
+        else:
+            ptr = self.ptr
+        if ptr < 1:
             raise StackUnderflow()
-        ptr = self.ptr
-        self.ptr -= 1
-        v = self.view[self.ptr]
-        if keep:
+        ptr -= 1
+        v = self.view[ptr]
+        if self.k:
+            self.kptr = ptr
+        else:
             self.ptr = ptr
         return v
 
-    def pop16(self, keep=False):
+    def pop16(self):
+        if self.k:
+            ptr = self.kptr
+        else:
+            ptr = self.ptr
         if self.ptr < 2:
             raise StackUnderflow()
-        ptr = self.ptr
-        self.ptr -= 2
-        v = self.view[self.ptr] << 8
-        v |= self.view[self.ptr+1]
-        if keep:
+        ptr -= 2
+        v = self.view[ptr] << 8
+        v |= self.view[ptr+1]
+        if self.k:
+            self.kptr = ptr
+        else:
             self.ptr = ptr
         return v
+
+    def keep(self, mode):
+        self.k = mode
+        self.kptr = self.ptr
 
     def __repr__(self):
         return str([hex(self.array[i]) for i in range(self.ptr)])
@@ -105,6 +121,7 @@ class Uxn:
             self.src = self.wst
             self.dst = self.rst
         self.k = True if op & 0x80 else False
+        self.src.keep(self.k) # set keep mode and initialize kptr
 
         if opcode == 0x00:   # LIT
             self.push(self.src, self.peek(self.pc))
@@ -174,7 +191,7 @@ class Uxn:
             self.jump(a)
         elif opcode == 0x0d: # JCN
             a = self.pop(self.src)
-            flag = self.src.pop8(keep=self.k)
+            flag = self.src.pop8()
             if flag != 0:
                 self.jump(a)
         elif opcode == 0x0e: # JSR
@@ -185,34 +202,34 @@ class Uxn:
             a = self.pop(self.src)
             self.push(self.dst, a)
         elif opcode == 0x10: # LDZ
-            a = self.src.pop8(keep=self.k)
+            a = self.src.pop8()
             v = self.peek(a)
             self.push(self.src, v)
         elif opcode == 0x11: # STZ
-            a = self.src.pop8(keep=self.k)
+            a = self.src.pop8()
             v = self.pop(self.src)
             self.poke(a, v)
         elif opcode == 0x12: # LDR
-            a = signed(self.src.pop8(keep=self.k))
+            a = signed(self.src.pop8())
             v = self.peek(self.pc + a)
             self.push(self.src, v)
         elif opcode == 0x13: # STR
-            a = signed(self.src.pop8(keep=self.k))
+            a = signed(self.src.pop8())
             v = self.pop(self.src)
             self.poke(self.pc + a, v)
         elif opcode == 0x14: # LDA
-            a = self.src.pop16(keep=self.k)
+            a = self.src.pop16()
             v = self.peek(a)
             self.push(self.src, v)
         elif opcode == 0x15: # STA
-            a = self.src.pop16(keep=self.k)
+            a = self.src.pop16()
             v = self.pop(self.src)
             self.poke(a, v)
         elif opcode == 0x16: # DEI
-            a = self.src.pop8(keep=self.k)
+            a = self.src.pop8()
             self.push(self.src, self.devr(a))
         elif opcode == 0x17: # DEO
-            a = self.src.pop8(keep=self.k)
+            a = self.src.pop8()
             v = self.pop(self.src)
             self.devw(a, v)
         elif opcode == 0x18: # ADD
@@ -244,7 +261,7 @@ class Uxn:
             a = self.pop(self.src)
             self.push(self.src, a ^ b)
         elif opcode == 0x1f: # SFT
-            b = self.src.pop8(keep=self.k)
+            b = self.src.pop8()
             a = self.pop(self.src)
             left = (b & 0xf0) >> 4
             right = b & 0x0f
@@ -258,9 +275,9 @@ class Uxn:
 
     def pop(self, stack):
         if self.s:
-            return stack.pop16(keep=self.k)
+            return stack.pop16()
         else:
-            return stack.pop8(keep=self.k)
+            return stack.pop8()
 
     def peek8(self, addr):
         return self.ram[addr]
