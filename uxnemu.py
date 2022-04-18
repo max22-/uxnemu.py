@@ -335,7 +335,9 @@ class Uxn:
         self.halted = True
 
     def __repr__(self):
-        return "wst: " + self.wst.__repr__() + "\nrst: " + self.rst.__repr__() + "\npc: " + hex(self.pc)
+        return (f"wst: {self.wst}\n"
+               f"rst: {self.rst}\n"
+               f"pc: {hex(self.pc)}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -356,11 +358,13 @@ if __name__ == "__main__":
         # step debugging
         uxn.set_pc(Uxn.page_program)
         print(uxn)
+        print("Next instruction: ", end='')
         disassembler.disassemble(uxn.ram[uxn.pc:])
         while not uxn.halted:
             input()
             uxn.step()
             print(uxn)
+            print("Next instruction: ", end='')
             disassembler.disassemble(uxn.ram[uxn.pc:])
             print()
     else:
