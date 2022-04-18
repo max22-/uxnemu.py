@@ -127,79 +127,79 @@ class Uxn:
             self.push(self.src, self.peek(self.pc))
             self.pc += 2 if self.s else 1
         elif opcode == 0x01: # INC
-            a = self.pop(self.src)
+            a = self.pop()
             a += 1
             self.push(self.src, a)
         elif opcode == 0x02: # POP
-            self.pop(self.src)
+            self.pop()
         elif opcode == 0x03: # DUP
-            a = self.pop(self.src)
+            a = self.pop()
             self.push(self.src, a)
             self.push(self.src, a)
         elif opcode == 0x04: # NIP
-            b = self.pop(self.src)
-            self.pop(self.src)
+            b = self.pop()
+            self.pop()
             self.push(self.src, b)
         elif opcode == 0x05: # SWP
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, b)
             self.push(self.src, a)
         elif opcode == 0x06: # OVR
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a)
             self.push(self.src, b)
             self.push(self.src, a)
         elif opcode == 0x07: # ROT
-            c = self.pop(self.src)
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            c = self.pop()
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, b)
             self.push(self.src, c)
             self.push(self.src, a)
         elif opcode == 0x08: # EQU
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             if a == b:
                 self.src.push8(0x01)
             else:
                 self.src.push8(0x00)
         elif opcode == 0x09: # NEQ
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             if a != b:
                 self.src.push8(0x01)
             else:
                 self.src.push8(0x00)
         elif opcode == 0x0a: # GTH:
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             if a > b:
                 self.src.push8(0x01)
             else:
                 self.src.push8(0x00)
         elif opcode == 0x0b: # LTH
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             if a < b:
                 self.src.push8(0x01)
             else:
                 self.src.push8(0x00)
         elif opcode == 0x0c: # JMP
-            a = self.pop(self.src)
+            a = self.pop()
             self.jump(a)
         elif opcode == 0x0d: # JCN
-            a = self.pop(self.src)
+            a = self.pop()
             flag = self.src.pop8()
             if flag != 0:
                 self.jump(a)
         elif opcode == 0x0e: # JSR
-            a = self.pop(self.src)
+            a = self.pop()
             self.dst.push16(self.pc)
             self.jump(a)
         elif opcode == 0x0f: # STH
-            a = self.pop(self.src)
+            a = self.pop()
             self.push(self.dst, a)
         elif opcode == 0x10: # LDZ
             a = self.src.pop8()
@@ -207,7 +207,7 @@ class Uxn:
             self.push(self.src, v)
         elif opcode == 0x11: # STZ
             a = self.src.pop8()
-            v = self.pop(self.src)
+            v = self.pop()
             self.poke(a, v)
         elif opcode == 0x12: # LDR
             a = signed(self.src.pop8())
@@ -215,7 +215,7 @@ class Uxn:
             self.push(self.src, v)
         elif opcode == 0x13: # STR
             a = signed(self.src.pop8())
-            v = self.pop(self.src)
+            v = self.pop()
             self.poke(self.pc + a, v)
         elif opcode == 0x14: # LDA
             a = self.src.pop16()
@@ -223,46 +223,46 @@ class Uxn:
             self.push(self.src, v)
         elif opcode == 0x15: # STA
             a = self.src.pop16()
-            v = self.pop(self.src)
+            v = self.pop()
             self.poke(a, v)
         elif opcode == 0x16: # DEI
             a = self.src.pop8()
             self.push(self.src, self.devr(a))
         elif opcode == 0x17: # DEO
             a = self.src.pop8()
-            v = self.pop(self.src)
+            v = self.pop()
             self.devw(a, v)
         elif opcode == 0x18: # ADD
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a + b)
         elif opcode == 0x19: # SUB
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a - b)
         elif opcode == 0x1a: # MUL
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a * b)
         elif opcode == 0x1b: # DIV
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a // b)
         elif opcode == 0x1c: # AND
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a & b)
         elif opcode == 0x1d: # ORA
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a | b)
         elif opcode == 0x1e: # EOR
-            b = self.pop(self.src)
-            a = self.pop(self.src)
+            b = self.pop()
+            a = self.pop()
             self.push(self.src, a ^ b)
         elif opcode == 0x1f: # SFT
             b = self.src.pop8()
-            a = self.pop(self.src)
+            a = self.pop()
             left = (b & 0xf0) >> 4
             right = b & 0x0f
             self.push(self.src, a >> right << left)
@@ -273,11 +273,11 @@ class Uxn:
         else:
             stack.push8(v)
 
-    def pop(self, stack):
+    def pop(self):
         if self.s:
-            return stack.pop16()
+            return self.src.pop16()
         else:
-            return stack.pop8()
+            return self.src.pop8()
 
     def peek8(self, addr):
         return self.ram[addr]
