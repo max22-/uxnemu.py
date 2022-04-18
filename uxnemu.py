@@ -244,11 +244,11 @@ class Uxn:
             a = self.pop(self.src)
             self.push(self.src, a ^ b)
         elif opcode == 0x1f: # SFT
-            b = self.pop(self.src)
-            a = self.src.pop8(keep=self.k)
-            left = a & 0xf0 >> 4
-            right = a & 0x0f
-            self.push(self.src, b >> right << left)
+            b = self.src.pop8(keep=self.k)
+            a = self.pop(self.src)
+            left = (b & 0xf0) >> 4
+            right = b & 0x0f
+            self.push(self.src, a >> right << left)
 
     def push(self, stack, v):
         if self.s:
