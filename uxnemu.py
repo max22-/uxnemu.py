@@ -328,8 +328,10 @@ class Uxn:
 
     def deo(self, a, v):
         self.dev[a] = v
-        if a == 0x18:
-            print(chr(v), end='')
+
+    def get_vec(self, a):
+        a = a & 0xf0
+        return (self.dev[a] << 8) | self.dev[a+1]
 
     def halt(self):
         self.halted = True
@@ -339,6 +341,28 @@ class Uxn:
                 f"rst: {self.rst}\n"
                 f"pc: {hex(self.pc)}\n"
                 f"next instruction: {disassembler.disassemble(uxn.ram[uxn.pc:])}")
+
+class Varvara(Uxn):
+    def dei(self, a):
+        return super().dei(a)
+
+    def deo(self, a, v):
+        super().deo(a, v)
+        if a == 0x18:
+            sys.stdout.write(chr(v))
+
+    def getchar(self):
+        c = sys.stdin.read(1)
+        if c == '\r':
+            c = '\n'
+        print(ord(c))
+        if len(c) == 0:
+            return False
+        self.dev_array[0x12] = ord(c)
+        vec = self.get_vec(0x10)
+        if vec != 0:
+            uxn.eval(vec)
+        return True
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -352,7 +376,7 @@ if __name__ == "__main__":
     print(f"{len(rom)} bytes")
     print()
 
-    uxn = Uxn()
+    uxn = Varvara()
     uxn.load(rom)
 
     if len(sys.argv) == 3 and sys.argv[2] == "-d":
@@ -368,6 +392,9 @@ if __name__ == "__main__":
         uxn.eval(Uxn.page_program)
         print("")
         print(uxn)
+        while uxn.getchar():
+            pass
+            
         sys.exit(0)
 
 
