@@ -355,9 +355,6 @@ class Varvara(Uxn):
 
     def getchar(self):
         c = sys.stdin.read(1)
-        if c == '\r':
-            c = '\n'
-        print(ord(c))
         if len(c) == 0:
             return False
         self.dev_array[0x12] = ord(c)
