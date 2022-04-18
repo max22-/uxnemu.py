@@ -65,8 +65,8 @@ class Uxn:
         self.ram = memoryview(self.ram_array)
         self.wst = Stack()
         self.rst = Stack()
-        self.dev_array = [bytearray(0x10) for i in range(0x10)]
-        self.dev = [memoryview(d) for d in self.dev_array]
+        self.dev_array = bytearray(0x100)
+        self.dev = memoryview(self.dev_array)
         self.pc = 0
         self.halted = False
         self.s = False
@@ -210,11 +210,11 @@ class Uxn:
             self.poke(a, v)
         elif opcode == 0x16: # DEI
             a = self.src.pop8(keep=self.k)
-            self.push(self.src, self.dei(a))
+            self.push(self.src, self.devr(a))
         elif opcode == 0x17: # DEO
             a = self.src.pop8(keep=self.k)
             v = self.pop(self.src)
-            self.deo(a, v)
+            self.devw(a, v)
         elif opcode == 0x18: # ADD
             b = self.pop(self.src)
             a = self.pop(self.src)
@@ -292,6 +292,19 @@ class Uxn:
             self.pc = a
         else:
             self.pc += signed(a)
+
+    def devr(self, a):
+        v = self.dei(a)
+        if self.s:
+            v = v << 8 | self.dei((a+1) & 0xff)
+        return v
+
+    def devw(self, a, v):
+        if self.s:
+            self.deo(a, v >> 8)
+            self.deo((a + 1) & 0xff, v & 0xff)
+        else:
+            self.deo(a, v & 0xff)
 
     def dei(self, a):
         print(f"DEI({hex(a)})")
