@@ -33,22 +33,24 @@ OPS = {
     0x1f: "SFT"
 }
 
+# disassembles only one instruction
 def disassemble(mem):
+    res = ""
     op = mem[0]
     opcode = op & 0x1f
     s = (op & 0x20) != 0
     r = (op & 0x40) != 0
     k = (op & 0x80) != 0
     if opcode == 0x00 and k:
-        print(f"#{mem[1]:02x}", end='')
+        res += f"#{mem[1]:02x}"
         if s:
-            print(f"{mem[2]:02x}", end='')
+            res += f"{mem[2]:02x}"
     else:
-        print(OPS[opcode], end='')
+        res += OPS[opcode]
         if s != 0:
-            print('2', end='')
+            res += '2'
         if k != 0:
-            print('k', end='')
+            res += 'k'
         if r != 0:
-            print('r', end='')
-    print()
+            res += 'r'
+    return res
