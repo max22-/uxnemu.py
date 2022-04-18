@@ -337,11 +337,13 @@ class Uxn:
         self.halted = True
 
     def __repr__(self):
-        return (f"wst: {self.wst}\n"
-                f"rst: {self.rst}\n"
-                f"pc: {hex(self.pc)}\n"
-                f"next instruction: {disassembler.disassemble(uxn.ram[uxn.pc:])}")
-
+        res = (f"wst: {self.wst}\n"
+               f"rst: {self.rst}\n"
+               f"pc: {hex(self.pc)}\n")
+        if not self.halted:
+            res += f"next instruction: {disassembler.disassemble(uxn.ram[uxn.pc:])}"
+        return res
+        
 class Varvara(Uxn):
     def dei(self, a):
         return super().dei(a)
