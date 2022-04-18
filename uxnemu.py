@@ -325,6 +325,7 @@ class Uxn:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("usage: uxnemu.py file.rom")
+        sys.exit(1)
 
     print(f"Loading {sys.argv[1]}...")
     with open(sys.argv[1], 'rb') as f:
@@ -335,22 +336,27 @@ if __name__ == "__main__":
 
     uxn = Uxn()
     uxn.load(rom)
-    uxn.eval(Uxn.page_program)
-    print("")
-    print(uxn)
-    sys.exit(0)
 
-
-    # Stuff for step debugging down below
-    
-    uxn.set_pc(Uxn.page_program)
-    print(uxn)
-    disassembler.disassemble(uxn.ram[uxn.pc:])
-    while not uxn.halted:
-        #input()
-        uxn.step()
+    if len(sys.argv) == 3 and sys.argv[2] == "-d":
+        # step debugging
+        uxn.set_pc(Uxn.page_program)
         print(uxn)
         disassembler.disassemble(uxn.ram[uxn.pc:])
-        print()
+        while not uxn.halted:
+            input()
+            uxn.step()
+            print(uxn)
+            disassembler.disassemble(uxn.ram[uxn.pc:])
+            print()
+    else:
+        uxn.eval(Uxn.page_program)
+        print("")
+        print(uxn)
+        sys.exit(0)
+
+
+
+    
+
         
     
