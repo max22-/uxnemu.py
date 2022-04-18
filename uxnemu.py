@@ -132,31 +132,31 @@ class Uxn:
             self.push(self.src, a)
         elif opcode == 0x02: # POP
             self.pop()
-        elif opcode == 0x03: # DUP
-            a = self.pop()
-            self.push(self.src, a)
-            self.push(self.src, a)
-        elif opcode == 0x04: # NIP
+        elif opcode == 0x03: # NIP
             b = self.pop()
             self.pop()
             self.push(self.src, b)
-        elif opcode == 0x05: # SWP
+        elif opcode == 0x04: # SWP
             b = self.pop()
             a = self.pop()
             self.push(self.src, b)
             self.push(self.src, a)
-        elif opcode == 0x06: # OVR
-            b = self.pop()
-            a = self.pop()
-            self.push(self.src, a)
-            self.push(self.src, b)
-            self.push(self.src, a)
-        elif opcode == 0x07: # ROT
+        elif opcode == 0x05: # ROT
             c = self.pop()
             b = self.pop()
             a = self.pop()
             self.push(self.src, b)
             self.push(self.src, c)
+            self.push(self.src, a)
+        elif opcode == 0x06: # DUP
+            a = self.pop()
+            self.push(self.src, a)
+            self.push(self.src, a)  
+        elif opcode == 0x07: # OVR
+            b = self.pop()
+            a = self.pop()
+            self.push(self.src, a)
+            self.push(self.src, b)
             self.push(self.src, a)
         elif opcode == 0x08: # EQU
             b = self.pop()
